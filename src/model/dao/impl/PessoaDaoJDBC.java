@@ -15,26 +15,44 @@ import model.entites.Pessoa;
 
 public class PessoaDaoJDBC implements PessoaDao {
 
-	private Connection conn;
+	// PessoaDaoJDBC implementa os contratos de PessoaDao,
+	// sendo a camada entre as entidades do sistema e os dados
+	// do banco relacional.
 
-	private int rowsAffected;
+	private Connection conn; // atributo que guarda a conexão com o banco.
+
+	private int rowsAffected; // atributo de controle que guarda o número de linhas
+	// afetadas em cada operação DML.
 
 	public PessoaDaoJDBC(Connection conn) {
 		this.conn = conn;
 	}
+	// método construtor que inicializa o atributo com um conexão
+	// que provém da classe DB por intermédio de DaoFactory.
 
 	@Override
 	public void insert(Pessoa obj) {
+		// método de inserção de registros no banco.
+
 		PreparedStatement st = null;
 
 		try {
 
 			conn.setAutoCommit(false);
+
 			st = conn.prepareStatement("INSERT INTO PESSOA " + "(nome, idade) VALUES " + "(?, ?)");
+			// método prepareStatement da classe Connection que guarda uma instrução SQL.
 
 			List<Pessoa> filteredPessoa = selectAll().stream().filter(p -> p.equals(obj)).collect(Collectors.toList());
+			// Lógica que consiste em verificar se já há um registro com o nome e idade
+			// passados, através do método que retorna
+			// todos os registros através de uma lista e atribuindo esse valor (nulo ou não)
+			// em uma lista que serve como filtro.
 
 			if (filteredPessoa.isEmpty()) {
+				// se a lista estiver vazia, indica que não nenhum registros com o valor
+				// passado.
+				// Assim atribuindo esses valores em um novo registro no banco.
 				st.setString(1, obj.getNome());
 				st.setInt(2, obj.getIdade());
 
@@ -51,6 +69,11 @@ public class PessoaDaoJDBC implements PessoaDao {
 		catch (SQLException e) {
 			try {
 				conn.rollback();
+				// se ocorrer um erro no meio do processo de inserção
+				// essa exception vai estourar e chamar o método rollback(),
+				// que vai voltar o banco ao seu estado antes da transação.
+				// Assim asegurando a consitência do banco e obdecendo as boas
+				// práticas de uma transação segura.
 				throw new DBException(e.getMessage());
 			} catch (SQLException e1) {
 				throw new DBException(e.getMessage());
@@ -65,6 +88,9 @@ public class PessoaDaoJDBC implements PessoaDao {
 
 	@Override
 	public void update(Pessoa obj) {
+
+		// método responsável por atualizar um registro no banco.
+		// Possibilitando apenas a alteração do nome.
 		PreparedStatement st = null;
 
 		try {
@@ -93,6 +119,8 @@ public class PessoaDaoJDBC implements PessoaDao {
 
 	@Override
 	public void delete(Integer obj) {
+
+		// método responsável por deletar um registro do banco.
 		PreparedStatement st = null;
 
 		try {
@@ -124,6 +152,7 @@ public class PessoaDaoJDBC implements PessoaDao {
 	@Override
 	public Pessoa selectById(Integer obj) {
 
+		// método que retorna um registro pelo id especificado.
 		PreparedStatement st = null;
 		ResultSet rs = null;
 
@@ -137,7 +166,6 @@ public class PessoaDaoJDBC implements PessoaDao {
 
 			if (rs.next()) {
 				pessoa = new Pessoa(rs.getInt("id"), rs.getString("nome"), rs.getInt("idade"));
-				return pessoa;
 			}
 
 			return pessoa;
@@ -151,6 +179,7 @@ public class PessoaDaoJDBC implements PessoaDao {
 
 	@Override
 	public List<Pessoa> selectAll() {
+		// método que retorna todos os registros do banco de dados.
 
 		List<Pessoa> pessoas = new ArrayList<>();
 		PreparedStatement st = null;

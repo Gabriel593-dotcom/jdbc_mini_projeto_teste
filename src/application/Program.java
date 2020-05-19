@@ -105,6 +105,8 @@ public class Program {
 	}
 
 	public static void menu() {
+		// método que consiste em imprimir as opção 
+		// de serviços na tela e ler a numeração referente ao pedido.
 		System.out.println();
 		System.out.println("1 - Consultar todos os registros");
 		System.out.println("2 - Consultar registro por id");
@@ -118,6 +120,9 @@ public class Program {
 	}
 
 	public static int choiceService(char esc) {
+		
+		// método que serve exclusivamente para reutilizar o 
+		// o processo de escolha do usuário.
 		if (esc == 's' || esc == 'S') {
 			menu();
 		}
@@ -128,7 +133,6 @@ public class Program {
 		
 		else {
 			System.out.println("valor inválido!");
-			x = 0;
 		}
 
 		System.out.println();
